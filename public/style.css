@@ -415,6 +415,13 @@ kbd {
     color: #cbd5e1;
 }
 
+.guide-img {
+    height: 20px;
+    width: 32px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
 .badge {
     display: inline-block;
     width: 18px;

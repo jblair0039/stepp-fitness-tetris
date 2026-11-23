@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs>
+    <!-- Chrome Bar Gradient -->
+    <linearGradient id="chromeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#e0e0e0"/>
+      <stop offset="50%" stop-color="#9e9e9e"/>
+      <stop offset="75%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#616161"/>
+    </linearGradient>
+    <!-- Knurl Pattern -->
+    <pattern id="knurl" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M0 3 L6 3 M3 0 L3 6" stroke="#424242" stroke-width="0.75" opacity="0.6"/>
+    </pattern>
+    <!-- Bumper Plate Gradient -->
+    <linearGradient id="plateGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a333d"/>
+      <stop offset="30%" stop-color="#141920"/>
+      <stop offset="70%" stop-color="#0a0d11"/>
+      <stop offset="100%" stop-color="#1e252e"/>
+    </linearGradient>
+    <!-- Cyan Rim Glow -->
+    <linearGradient id="rimGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#008ba3"/>
+    </linearGradient>
+    <filter id="plateShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Left Sleeve Shaft -->
+  <rect x="20" y="44" width="80" height="12" rx="2" fill="url(#chromeGrad)"/>
+  <!-- Right Sleeve Shaft -->
+  <rect x="300" y="44" width="80" height="12" rx="2" fill="url(#chromeGrad)"/>
+
+  <!-- Center Main Bar Shaft -->
+  <rect x="95" y="45" width="210" height="10" rx="2" fill="url(#chromeGrad)"/>
+  <!-- Knurling Sections on Center Bar -->
+  <rect x="115" y="45" width="65" height="10" fill="url(#knurl)"/>
+  <rect x="220" y="45" width="65" height="10" fill="url(#knurl)"/>
+  <!-- Inner Collar Rings -->
+  <rect x="95" y="40" width="8" height="20" rx="2" fill="url(#chromeGrad)" stroke="#424242" stroke-width="1"/>
+  <rect x="297" y="40" width="8" height="20" rx="2" fill="url(#chromeGrad)" stroke="#424242" stroke-width="1"/>
+
+  <!-- LEFT PLATES GROUP -->
+  <g filter="url(#plateShadow)">
+    <!-- 45 LB Bumper Plate Outer -->
+    <rect x="42" y="8" width="18" height="84" rx="4" fill="url(#plateGrad)" stroke="url(#rimGlow)" stroke-width="2"/>
+    <line x1="51" y1="12" x2="51" y2="88" stroke="#00e5ff" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <!-- 45 LB Bumper Plate Inner -->
+    <rect x="64" y="8" width="18" height="84" rx="4" fill="url(#plateGrad)" stroke="url(#rimGlow)" stroke-width="2"/>
+    <line x1="73" y1="12" x2="73" y2="88" stroke="#00e5ff" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <!-- Collar Clamp -->
+    <rect x="26" y="38" width="12" height="24" rx="3" fill="#ff1744" stroke="#ffffff" stroke-width="1"/>
+    <line x1="32" y1="34" x2="32" y2="44" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- RIGHT PLATES GROUP -->
+  <g filter="url(#plateShadow)">
+    <!-- 45 LB Bumper Plate Inner -->
+    <rect x="318" y="8" width="18" height="84" rx="4" fill="url(#plateGrad)" stroke="url(#rimGlow)" stroke-width="2"/>
+    <line x1="327" y1="12" x2="327" y2="88" stroke="#00e5ff" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <!-- 45 LB Bumper Plate Outer -->
+    <rect x="340" y="8" width="18" height="84" rx="4" fill="url(#plateGrad)" stroke="url(#rimGlow)" stroke-width="2"/>
+    <line x1="349" y1="12" x2="349" y2="88" stroke="#00e5ff" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
+    <!-- Collar Clamp -->
+    <rect x="362" y="38" width="12" height="24" rx="3" fill="#ff1744" stroke="#ffffff" stroke-width="1"/>
+    <line x1="368" y1="34" x2="368" y2="44" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Embossed Weight Text on Center Plate -->
+  <text x="51" y="54" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#00e5ff" text-anchor="middle" transform="rotate(-90 51 54)">45 LB</text>
+  <text x="349" y="54" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#00e5ff" text-anchor="middle" transform="rotate(90 349 54)">45 LB</text>
+</svg>

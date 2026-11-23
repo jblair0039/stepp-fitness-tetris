@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 400" width="100" height="400">
+  <defs>
+    <linearGradient id="chromeGradV" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#e0e0e0"/>
+      <stop offset="50%" stop-color="#9e9e9e"/>
+      <stop offset="75%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#616161"/>
+    </linearGradient>
+    <pattern id="knurlV" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M0 3 L6 3 M3 0 L3 6" stroke="#424242" stroke-width="0.75" opacity="0.6"/>
+    </pattern>
+    <linearGradient id="plateGradV" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2a333d"/>
+      <stop offset="30%" stop-color="#141920"/>
+      <stop offset="70%" stop-color="#0a0d11"/>
+      <stop offset="100%" stop-color="#1e252e"/>
+    </linearGradient>
+    <filter id="plateShadowV" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Top Sleeve -->
+  <rect x="44" y="20" width="12" height="80" rx="2" fill="url(#chromeGradV)"/>
+  <!-- Bottom Sleeve -->
+  <rect x="44" y="300" width="12" height="80" rx="2" fill="url(#chromeGradV)"/>
+  <!-- Center Main Bar -->
+  <rect x="45" y="95" width="10" height="210" rx="2" fill="url(#chromeGradV)"/>
+  <rect x="45" y="115" width="10" height="65" fill="url(#knurlV)"/>
+  <rect x="45" y="220" width="10" height="65" fill="url(#knurlV)"/>
+  <!-- Collar Rings -->
+  <rect x="40" y="95" width="20" height="8" rx="2" fill="url(#chromeGradV)" stroke="#424242" stroke-width="1"/>
+  <rect x="40" y="297" width="20" height="8" rx="2" fill="url(#chromeGradV)" stroke="#424242" stroke-width="1"/>
+
+  <!-- TOP PLATES -->
+  <g filter="url(#plateShadowV)">
+    <rect x="8" y="42" width="84" height="18" rx="4" fill="url(#plateGradV)" stroke="#00e5ff" stroke-width="2"/>
+    <rect x="8" y="64" width="84" height="18" rx="4" fill="url(#plateGradV)" stroke="#00e5ff" stroke-width="2"/>
+    <rect x="38" y="26" width="24" height="12" rx="3" fill="#ff1744" stroke="#ffffff" stroke-width="1"/>
+  </g>
+  <!-- BOTTOM PLATES -->
+  <g filter="url(#plateShadowV)">
+    <rect x="8" y="318" width="84" height="18" rx="4" fill="url(#plateGradV)" stroke="#00e5ff" stroke-width="2"/>
+    <rect x="8" y="340" width="84" height="18" rx="4" fill="url(#plateGradV)" stroke="#00e5ff" stroke-width="2"/>
+    <rect x="38" y="362" width="24" height="12" rx="3" fill="#ff1744" stroke="#ffffff" stroke-width="1"/>
+  </g>
+
+  <text x="50" y="55" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#00e5ff" text-anchor="middle">45 LB</text>
+  <text x="50" y="353" font-family="Arial, sans-serif" font-weight="900" font-size="10" fill="#00e5ff" text-anchor="middle">45 LB</text>
+</svg>

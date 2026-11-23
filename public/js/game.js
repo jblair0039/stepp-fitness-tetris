@@ -41,6 +41,7 @@ class TetrisGame {
 
         this.clearingRows = [];
         this.clearAnimTimer = 0;
+        this.lockedPieces = [];
 
         this.initUI();
         this.initInput();
@@ -69,6 +70,7 @@ class TetrisGame {
         this.holdPieceId = null;
         this.canHold = true;
         this.clearingRows = [];
+        this.lockedPieces = [];
 
         this.nextPieceId = this.randomizer.next();
         this.spawnPiece();
@@ -293,6 +295,15 @@ class TetrisGame {
             }
         }
 
+        // Record locked gym equipment instance for realistic image rendering
+        this.lockedPieces.push({
+            type: this.activePiece.type,
+            x: this.activePiece.x,
+            y: this.activePiece.y,
+            rot: this.activePiece.rot || 0,
+            shape: shape.map(row => [...row])
+        });
+
         this.activePiece = null;
         this.checkLineClears();
     }
@@ -359,6 +370,13 @@ class TetrisGame {
         for (const rowIdx of this.clearingRows) {
             this.board.splice(rowIdx, 1);
             this.board.unshift(Array(this.cols).fill(0));
+
+            // Shift pieces above down
+            for (const lp of this.lockedPieces) {
+                if (lp.y < rowIdx) {
+                    lp.y++;
+                }
+            }
         }
         this.clearingRows = [];
         this.spawnPiece();
@@ -431,7 +449,7 @@ class TetrisGame {
 
         // Render Frame
         const ghostY = this.getGhostY();
-        this.renderer.render(this.board, this.activePiece, ghostY, this.clearingRows);
+        this.renderer.render(this.board, this.activePiece, ghostY, this.clearingRows, this.lockedPieces);
 
         requestAnimationFrame(this.gameLoop.bind(this));
     }

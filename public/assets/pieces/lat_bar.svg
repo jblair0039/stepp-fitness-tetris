@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+  <defs>
+    <linearGradient id="purpleGrip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff80ab"/>
+      <stop offset="30%" stop-color="#d500f9"/>
+      <stop offset="70%" stop-color="#6a0080"/>
+      <stop offset="100%" stop-color="#24002c"/>
+    </linearGradient>
+    <linearGradient id="steelPulley" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#bdbdbd"/>
+      <stop offset="100%" stop-color="#424242"/>
+    </linearGradient>
+    <filter id="latShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#latShadow)">
+    <!-- Cable Wire Drop (Center vertical) -->
+    <line x1="150" y1="60" x2="150" y2="185" stroke="#ffffff" stroke-width="5" stroke-dasharray="4 2"/>
+    <line x1="150" y1="60" x2="150" y2="185" stroke="#d500f9" stroke-width="2"/>
+
+    <!-- Carabiner Clip at Bottom -->
+    <path d="M 142 165 C 142 155, 158 155, 158 165 L 158 185 C 158 195, 142 195, 142 185 Z" fill="none" stroke="url(#steelPulley)" stroke-width="5"/>
+    <!-- Carabiner Screw Gate -->
+    <rect x="154" y="168" width="6" height="14" rx="2" fill="#ffd700"/>
+
+    <!-- Center Swivel Mount Eyelet -->
+    <circle cx="150" cy="58" r="10" fill="url(#steelPulley)" stroke="#222" stroke-width="2"/>
+    <circle cx="150" cy="58" r="4" fill="#0c0e12"/>
+
+    <!-- Swept Lat Pulldown Bar -->
+    <!-- Center bar straight section -->
+    <path d="M 90 55 L 210 55" stroke="url(#steelPulley)" stroke-width="14" stroke-linecap="round"/>
+    <!-- Angled Outer Grip Wings -->
+    <path d="M 90 55 L 25 78" stroke="url(#steelPulley)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M 210 55 L 275 78" stroke="url(#steelPulley)" stroke-width="14" stroke-linecap="round"/>
+
+    <!-- Rubber Contour Grips (Outer Wings) -->
+    <path d="M 80 57 L 30 76" stroke="url(#purpleGrip)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M 220 57 L 270 76" stroke="url(#purpleGrip)" stroke-width="18" stroke-linecap="round"/>
+
+    <!-- Inner Parallel Grips -->
+    <rect x="110" y="47" width="28" height="16" rx="4" fill="url(#purpleGrip)"/>
+    <rect x="162" y="47" width="28" height="16" rx="4" fill="url(#purpleGrip)"/>
+
+    <!-- Chrome End Caps -->
+    <circle cx="24" cy="78" r="11" fill="url(#steelPulley)" stroke="#d500f9" stroke-width="2"/>
+    <circle cx="276" cy="78" r="11" fill="url(#steelPulley)" stroke="#d500f9" stroke-width="2"/>
+  </g>
+</svg>
