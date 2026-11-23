@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stepp Fitness Tetris - Gym Equipment Arcade</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Gym Brand Header -->
+        <header class="gym-header">
+            <div class="logo-badge">
+                <img src="assets/logo.png" alt="Stepp Fitness Logo" class="brand-logo" id="header-logo">
+            </div>
+            <div class="header-titles">
+                <h1 class="game-title">STEPP <span class="accent-text">TETRIS</span></h1>
+                <p class="tagline">FORGE YOUR STRENGTH • ONE SET AT A TIME</p>
+            </div>
+            <div class="header-actions">
+                <button id="btn-toggle-sfx" class="btn-icon active" title="Toggle Sound FX">
+                    <span class="icon">🔊</span>
+                    <span class="btn-label">SFX: ON</span>
+                </button>
+                <button id="btn-toggle-bgm" class="btn-icon" title="Toggle Workout Music">
+                    <span class="icon">🎵</span>
+                    <span class="btn-label">MUSIC: OFF</span>
+                </button>
+                <button id="btn-pause-header" class="btn-icon" title="Pause Game">
+                    <span class="icon">⏸</span>
+                    <span class="btn-label">PAUSE</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Current Exercise Notification Bar -->
+        <div class="exercise-banner">
+            <span class="badge-live">CURRENT LIFT:</span>
+            <span id="current-exercise-name" class="exercise-name">Olympic Barbell</span>
+            <span class="separator">•</span>
+            <span id="current-exercise-desc" class="exercise-desc">45 LB Chrome Bar with Bumper Plates</span>
+        </div>
+
+        <!-- Main Arcade Arena -->
+        <main class="arcade-arena">
+            <!-- Left Side Panel (Hold & Stats) -->
+            <aside class="panel side-panel left-panel">
+                <div class="panel-box hold-box">
+                    <h3 class="panel-heading">GYM BAG</h3>
+                    <p class="panel-sub">[HOLD - 'C']</p>
+                    <div class="canvas-wrapper">
+                        <canvas id="hold-canvas" width="90" height="90"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel-box stats-box">
+                    <h3 class="panel-heading">WORKOUT STATS</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">WEIGHT LIFTED</span>
+                        <div class="stat-value-group">
+                            <span id="stat-score" class="stat-value accent">0</span>
+                            <span class="stat-unit">LBS</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">SETS COMPLETED</span>
+                        <span id="stat-lines" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">INTENSITY</span>
+                        <div class="stat-value-group">
+                            <span class="stat-prefix">LVL</span>
+                            <span id="stat-level" class="stat-value">1</span>
+                        </div>
+                    </div>
+                    <div class="stat-item high-score-item">
+                        <span class="stat-label">GYM RECORD (PR)</span>
+                        <div class="stat-value-group">
+                            <span id="stat-high" class="stat-value pr-gold">0</span>
+                            <span class="stat-unit">LBS</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Game Canvas Well -->
+            <div class="canvas-center-well">
+                <div class="canvas-frame">
+                    <canvas id="game-canvas"></canvas>
+
+                    <!-- Start Overlay -->
+                    <div id="start-overlay" class="game-overlay">
+                        <div class="overlay-card">
+                            <div class="card-logo">
+                                <div class="logo-badge" style="display:inline-flex;">
+                                    <img src="assets/logo.png" alt="Stepp Fitness Logo" class="modal-logo">
+                                </div>
+                            </div>
+                            <h2>READY TO LIFT?</h2>
+                            <p class="modal-desc">Stack gym equipment, clear complete sets, and crush personal records.</p>
+                            <div class="equipment-guide">
+                                <div class="guide-item"><span class="badge bar">I</span> Olympic Barbell</div>
+                                <div class="guide-item"><span class="badge bell">O</span> Cast Kettlebell</div>
+                                <div class="guide-item"><span class="badge lat">T</span> Cable Lat Bar</div>
+                                <div class="guide-item"><span class="badge rack">L</span> Squat Power Rack</div>
+                                <div class="guide-item"><span class="badge tread">J</span> Incline Treadmill</div>
+                                <div class="guide-item"><span class="badge dumb">S</span> Hex Dumbbells</div>
+                                <div class="guide-item"><span class="badge bench">Z</span> Incline Bench</div>
+                            </div>
+                            <button id="btn-start" class="btn-primary">START WORKOUT</button>
+                        </div>
+                    </div>
+
+                    <!-- Pause Overlay -->
+                    <div id="pause-overlay" class="game-overlay hidden">
+                        <div class="overlay-card">
+                            <h2>REST INTERVAL</h2>
+                            <p class="modal-desc">Catch your breath. Your weights are waiting on the rack.</p>
+                            <button id="btn-resume" class="btn-primary">RESUME SET</button>
+                        </div>
+                    </div>
+
+                    <!-- Game Over Overlay -->
+                    <div id="game-over-overlay" class="game-overlay hidden">
+                        <div class="overlay-card">
+                            <div id="new-pr-badge" class="pr-badge hidden">🏆 NEW GYM PR!</div>
+                            <h2>WORKOUT FINISHED</h2>
+                            <p class="modal-desc">Muscles to failure. Outstanding session!</p>
+                            <div class="final-stats">
+                                <div class="final-stat">
+                                    <span class="lbl">TOTAL WEIGHT</span>
+                                    <span id="final-score" class="val">0</span> LBS
+                                </div>
+                                <div class="final-stat">
+                                    <span class="lbl">SETS COMPLETED</span>
+                                    <span id="final-lines" class="val">0</span>
+                                </div>
+                                <div class="final-stat">
+                                    <span class="lbl">INTENSITY LEVEL</span>
+                                    <span id="final-level" class="val">1</span>
+                                </div>
+                            </div>
+                            <button id="btn-restart" class="btn-primary">START NEW SESSION</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Panel (Next & Controls Guide) -->
+            <aside class="panel side-panel right-panel">
+                <div class="panel-box next-box">
+                    <h3 class="panel-heading">NEXT EXERCISE</h3>
+                    <div class="canvas-wrapper">
+                        <canvas id="next-canvas" width="90" height="90"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel-box controls-guide-box">
+                    <h3 class="panel-heading">CONTROLS</h3>
+                    <ul class="controls-list">
+                        <li><kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> <span>Move Equipment</span></li>
+                        <li><kbd>↑</kbd> / <kbd>W</kbd> <span>Rotate CW</span></li>
+                        <li><kbd>Z</kbd> / <kbd>Ctrl</kbd> <span>Rotate CCW</span></li>
+                        <li><kbd>↓</kbd> / <kbd>S</kbd> <span>Soft Drop</span></li>
+                        <li><kbd>Space</kbd> <span>Slam Down (Hard)</span></li>
+                        <li><kbd>C</kbd> / <kbd>Shift</kbd> <span>Gym Bag (Hold)</span></li>
+                        <li><kbd>P</kbd> / <kbd>Esc</kbd> <span>Pause / Rest</span></li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Mobile Touch Controls -->
+        <div class="mobile-touch-bar">
+            <div class="d-pad">
+                <button id="btn-left" class="touch-btn" aria-label="Left">◀</button>
+                <div class="d-pad-vertical">
+                    <button id="btn-slam" class="touch-btn touch-slam" aria-label="Hard Drop">SLAM</button>
+                    <button id="btn-down" class="touch-btn" aria-label="Down">▼</button>
+                </div>
+                <button id="btn-right" class="touch-btn" aria-label="Right">▶</button>
+            </div>
+            <div class="action-buttons">
+                <button id="btn-hold" class="touch-btn touch-hold" aria-label="Hold">BAG</button>
+                <button id="btn-rotate-ccw" class="touch-btn" aria-label="Rotate CCW">↺</button>
+                <button id="btn-rotate-cw" class="touch-btn touch-action" aria-label="Rotate CW">↻</button>
+                <button id="btn-pause" class="touch-btn touch-pause" aria-label="Pause">⏸</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="gym-footer">
+            <div class="footer-content">
+                <span>Stepp Fitness Tetris • Built for champions</span>
+                <span class="footer-sep">|</span>
+                <a href="https://github.com/jblair0039/stepp-fitness-tetris" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/pieces.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

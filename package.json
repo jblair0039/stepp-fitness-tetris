@@ -1,0 +1,13 @@
+{
+  "name": "stepp-fitness-tetris",
+  "version": "1.0.0",
+  "description": "Stepp Fitness Tetris - Pure HTML Gym Equipment Arcade Game",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.167.0"
+  }
+}
