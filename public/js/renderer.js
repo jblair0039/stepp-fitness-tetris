@@ -1,5 +1,6 @@
 /**
- * Stepp Fitness Tetris - Canvas Renderer with Real Gym Equipment Images
+ * Stepp Fitness Tetris - Solid Modular Gym Equipment Renderer
+ * 100% Readable Grid with Heavy Gym Equipment Plates & "Almost Complete" Row Radar
  */
 
 class GymRenderer {
@@ -8,23 +9,22 @@ class GymRenderer {
         this.ctx = canvas.getContext('2d');
         this.cols = cols;
         this.rows = rows;
-        this.blockSize = 30; // updated in resize
+        this.blockSize = 30;
         this.particles = [];
         this.floatingTexts = [];
         this.shakeTime = 0;
         this.shakeIntensity = 0;
 
-        // Preload Gym Equipment SVG Images
-        this.images = {};
-        this.loadAssets();
+        // Equipment Assets for Preview & UI
+        this.previewImages = {};
+        this.loadPreviewAssets();
 
         this.resize();
     }
 
-    loadAssets() {
+    loadPreviewAssets() {
         const assetMap = {
-            'I_h': 'assets/pieces/barbell_h.svg',
-            'I_v': 'assets/pieces/barbell_v.svg',
+            'I': 'assets/pieces/barbell_h.svg',
             'O': 'assets/pieces/kettlebell.svg',
             'T': 'assets/pieces/lat_bar.svg',
             'L': 'assets/pieces/squat_rack.svg',
@@ -36,7 +36,7 @@ class GymRenderer {
         for (const [key, src] of Object.entries(assetMap)) {
             const img = new Image();
             img.src = src;
-            this.images[key] = img;
+            this.previewImages[key] = img;
         }
     }
 
@@ -150,7 +150,7 @@ class GymRenderer {
         }
     }
 
-    render(board, activePiece, ghostY, clearingRows = [], lockedPieces = []) {
+    render(board, activePiece, ghostY, clearingRows = []) {
         const now = performance.now();
         this.ctx.save();
 
@@ -162,20 +162,23 @@ class GymRenderer {
             this.ctx.translate(dx, dy);
         }
 
+        // 1. Gym floor background
         this.drawBackground();
-        this.drawGrid();
 
-        // Draw Locked Equipment Pieces using real equipment images clipped to active cells
-        this.drawLockedBoard(board, lockedPieces, clearingRows);
+        // 2. Grid lines & Row Completion Radar
+        this.drawGridAndRowRadar(board, now);
 
-        // Draw Ghost Piece (Drop Projection of real gym equipment)
+        // 3. Locked board equipment blocks
+        this.drawBoard(board, clearingRows);
+
+        // 4. High-contrast precision ghost target
         if (activePiece && ghostY !== null && ghostY !== activePiece.y) {
-            this.drawEquipmentImage(activePiece, activePiece.x, ghostY, true);
+            this.drawGhostPiece(activePiece, activePiece.x, ghostY);
         }
 
-        // Draw Active Falling Equipment Piece
+        // 5. Active falling gym equipment piece
         if (activePiece) {
-            this.drawEquipmentImage(activePiece, activePiece.x, activePiece.y, false);
+            this.drawActivePiece(activePiece, activePiece.x, activePiece.y);
         }
 
         this.updateAndDrawParticles(now);
@@ -187,15 +190,16 @@ class GymRenderer {
         const h = this.rows * this.blockSize;
 
         const bgGrad = this.ctx.createLinearGradient(0, 0, 0, h);
-        bgGrad.addColorStop(0, '#0a0c10');
-        bgGrad.addColorStop(1, '#12151c');
+        bgGrad.addColorStop(0, '#090b0e');
+        bgGrad.addColorStop(1, '#11141b');
         this.ctx.fillStyle = bgGrad;
         this.ctx.fillRect(0, 0, w, h);
 
+        // Carbon weave texture
         this.ctx.save();
         this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
         this.ctx.lineWidth = 1;
-        const step = 16;
+        const step = 14;
         for (let x = -h; x < w; x += step) {
             this.ctx.beginPath();
             this.ctx.moveTo(x, 0);
@@ -205,199 +209,401 @@ class GymRenderer {
         this.ctx.restore();
     }
 
-    drawGrid() {
+    drawGridAndRowRadar(board, now) {
         const w = this.cols * this.blockSize;
         const h = this.rows * this.blockSize;
+        const bs = this.blockSize;
 
         this.ctx.save();
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+
+        // Check for almost-complete rows (8 or 9 out of 10 cells filled)
+        for (let r = 0; r < this.rows; r++) {
+            let filledCount = 0;
+            for (let c = 0; c < this.cols; c++) {
+                if (board[r][c] !== 0) filledCount++;
+            }
+
+            if (filledCount >= 8 && filledCount < 10) {
+                // Energetic pulsing glow on the almost-complete set
+                const pulse = 0.5 + 0.5 * Math.sin(now * 0.009);
+                this.ctx.fillStyle = `rgba(0, 229, 255, ${0.08 + pulse * 0.12})`;
+                this.ctx.fillRect(0, r * bs, w, bs);
+
+                this.ctx.strokeStyle = `rgba(0, 229, 255, ${0.4 + pulse * 0.5})`;
+                this.ctx.lineWidth = 1.5;
+                this.ctx.strokeRect(1, r * bs + 1, w - 2, bs - 2);
+
+                // Side chevron markers
+                this.ctx.fillStyle = '#00e5ff';
+                this.ctx.beginPath();
+                this.ctx.moveTo(2, r * bs + 4);
+                this.ctx.lineTo(8, r * bs + bs / 2);
+                this.ctx.lineTo(2, r * bs + bs - 4);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(w - 2, r * bs + 4);
+                this.ctx.lineTo(w - 8, r * bs + bs / 2);
+                this.ctx.lineTo(w - 2, r * bs + bs - 4);
+                this.ctx.fill();
+            }
+        }
+
+        // Standard high-readability grid lines
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
         this.ctx.lineWidth = 1;
 
         for (let c = 1; c < this.cols; c++) {
-            const x = c * this.blockSize;
+            const x = c * bs;
             this.ctx.beginPath();
             this.ctx.moveTo(x, 0);
             this.ctx.lineTo(x, h);
             this.ctx.stroke();
         }
         for (let r = 1; r < this.rows; r++) {
-            const y = r * this.blockSize;
+            const y = r * bs;
             this.ctx.beginPath();
             this.ctx.moveTo(0, y);
             this.ctx.lineTo(w, y);
             this.ctx.stroke();
         }
+
         this.ctx.restore();
     }
 
-    drawLockedBoard(board, lockedPieces = [], clearingRows = []) {
+    drawBoard(board, clearingRows) {
         const bs = this.blockSize;
-        const drawnCells = Array.from({ length: this.rows }, () => Array(this.cols).fill(false));
-
-        // 1. Draw each locked piece using its gym equipment image clipped to surviving cells
-        for (const lp of lockedPieces) {
-            const survivingCells = [];
-            for (let r = 0; r < lp.shape.length; r++) {
-                for (let c = 0; c < lp.shape[r].length; c++) {
-                    if (lp.shape[r][c]) {
-                        const by = lp.y + r;
-                        const bx = lp.x + c;
-                        if (by >= 0 && by < this.rows && bx >= 0 && bx < this.cols && board[by][bx] !== 0) {
-                            survivingCells.push({ bx, by });
-                            drawnCells[by][bx] = true;
-                        }
-                    }
-                }
-            }
-
-            if (survivingCells.length > 0) {
-                this.ctx.save();
-                this.ctx.beginPath();
-                for (const cell of survivingCells) {
-                    this.ctx.rect(cell.bx * bs, cell.by * bs, bs, bs);
-                }
-                this.ctx.clip();
-                this.drawEquipmentImage(lp, lp.x, lp.y, false);
-                this.ctx.restore();
-            }
-        }
-
-        // 2. Draw any remaining cells as sleek beveled equipment plates
         for (let r = 0; r < this.rows; r++) {
             const isClearing = clearingRows.includes(r);
             for (let c = 0; c < this.cols; c++) {
                 const cell = board[r][c];
-                if (cell && !drawnCells[r][c]) {
+                if (cell) {
                     const typeId = typeof cell === 'string' ? cell : (cell.type || 'I');
                     if (isClearing) {
-                        this.drawClearingCell(c, r);
+                        this.drawClearingCell(c * bs, r * bs, bs);
                     } else {
-                        this.drawFallbackEquipmentBlock(c * bs, r * bs, bs, typeId);
+                        this.drawModularEquipmentCell(c * bs, r * bs, bs, typeId);
                     }
-                } else if (cell && isClearing) {
-                    this.drawClearingCell(c, r);
                 }
             }
         }
     }
 
-    drawClearingCell(c, r) {
-        const x = c * this.blockSize;
-        const y = r * this.blockSize;
-        const s = this.blockSize;
+    drawActivePiece(piece, gridX, gridY) {
+        const shape = piece.shape;
+        const bs = this.blockSize;
+        const type = piece.type;
 
+        for (let r = 0; r < shape.length; r++) {
+            for (let c = 0; c < shape[r].length; c++) {
+                if (shape[r][c]) {
+                    const px = (gridX + c) * bs;
+                    const py = (gridY + r) * bs;
+                    this.drawModularEquipmentCell(px, py, bs, type, true);
+                }
+            }
+        }
+    }
+
+    drawGhostPiece(piece, gridX, gridY) {
+        const shape = piece.shape;
+        const bs = this.blockSize;
+        const pieceInfo = GYM_PIECES[piece.type] || GYM_PIECES.I;
+
+        this.ctx.save();
+        for (let r = 0; r < shape.length; r++) {
+            for (let c = 0; c < shape[r].length; c++) {
+                if (shape[r][c]) {
+                    const px = (gridX + c) * bs;
+                    const py = (gridY + r) * bs;
+
+                    // High-contrast target cell: semi-transparent plate with glowing neon dashed border
+                    this.ctx.fillStyle = 'rgba(0, 229, 255, 0.12)';
+                    this.ctx.fillRect(px + 1, py + 1, bs - 2, bs - 2);
+
+                    this.ctx.strokeStyle = pieceInfo.color;
+                    this.ctx.lineWidth = 1.5;
+                    this.ctx.setLineDash([4, 3]);
+                    this.ctx.strokeRect(px + 1.5, py + 1.5, bs - 3, bs - 3);
+
+                    // Target crosshair indicator in center
+                    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    this.ctx.lineWidth = 1;
+                    this.ctx.setLineDash([]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(px + bs / 2 - 3, py + bs / 2);
+                    this.ctx.lineTo(px + bs / 2 + 3, py + bs / 2);
+                    this.ctx.moveTo(px + bs / 2, py + bs / 2 - 3);
+                    this.ctx.lineTo(px + bs / 2, py + bs / 2 + 3);
+                    this.ctx.stroke();
+                }
+            }
+        }
+        this.ctx.restore();
+    }
+
+    /**
+     * Solid Modular Gym Equipment Cell
+     * Draws a solid, tactile 1x1 block representing authentic gym equipment.
+     */
+    drawModularEquipmentCell(x, y, s, typeId, isActive = false) {
+        this.ctx.save();
+
+        const p = 1.5; // padding for crisp cell boundary
+        const bx = x + p;
+        const by = y + p;
+        const bs = s - p * 2;
+
+        if (typeId === 'I') {
+            // === OLYMPIC BARBELL BUMPER PLATE ===
+            // Dark rubber plate body
+            const plateGrad = this.ctx.createRadialGradient(bx + bs / 2, by + bs / 2, 2, bx + bs / 2, by + bs / 2, bs * 0.7);
+            plateGrad.addColorStop(0, '#263238');
+            plateGrad.addColorStop(0.7, '#141a20');
+            plateGrad.addColorStop(1, '#0a0d10');
+
+            this.ctx.fillStyle = plateGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            // Cyan Olympic Steel Rim Bevel
+            this.ctx.strokeStyle = '#00e5ff';
+            this.ctx.lineWidth = 1.8;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Knurled Steel Bar Shaft running through center
+            this.ctx.fillStyle = '#cfd8dc';
+            this.ctx.fillRect(bx, by + bs * 0.38, bs, bs * 0.24);
+
+            // Knurling hatching
+            this.ctx.strokeStyle = '#37474f';
+            this.ctx.lineWidth = 1;
+            for (let i = bx + 2; i < bx + bs - 2; i += 4) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(i, by + bs * 0.38);
+                this.ctx.lineTo(i + 2, by + bs * 0.62);
+                this.ctx.stroke();
+            }
+
+            // Center Olympic Collar Hub
+            this.ctx.fillStyle = '#00e5ff';
+            this.ctx.beginPath();
+            this.ctx.arc(bx + bs / 2, by + bs / 2, bs * 0.16, 0, Math.PI * 2);
+            this.ctx.fill();
+
+        } else if (typeId === 'O') {
+            // === CAST IRON KETTLEBELL TILE ===
+            // Solid textured cast iron with gold/bronze metallic trim
+            const ironGrad = this.ctx.createRadialGradient(bx + bs * 0.35, by + bs * 0.35, 2, bx + bs / 2, by + bs / 2, bs * 0.7);
+            ironGrad.addColorStop(0, '#fff59d');
+            ironGrad.addColorStop(0.25, '#ffd700');
+            ironGrad.addColorStop(0.7, '#8c7300');
+            ironGrad.addColorStop(1, '#2c2400');
+
+            this.ctx.fillStyle = ironGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            // Gold metallic beveled rim
+            this.ctx.strokeStyle = '#fff9c4';
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Kettlebell handle horn arch motif
+            this.ctx.fillStyle = '#1f1900';
+            this.ctx.beginPath();
+            this.ctx.arc(bx + bs / 2, by + bs / 2, bs * 0.28, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Stamped "32"
+            this.ctx.font = `bold ${Math.floor(bs * 0.32)}px sans-serif`;
+            this.ctx.fillStyle = '#ffd700';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText('32', bx + bs / 2, by + bs / 2);
+
+        } else if (typeId === 'T') {
+            // === CABLE LAT / WEIGHT STACK PLATE ===
+            // Industrial purple steel weight-stack plate
+            const stackGrad = this.ctx.createLinearGradient(bx, by, bx + bs, by + bs);
+            stackGrad.addColorStop(0, '#f48fb1');
+            stackGrad.addColorStop(0.25, '#d500f9');
+            stackGrad.addColorStop(0.8, '#6a0080');
+            stackGrad.addColorStop(1, '#1b0020');
+
+            this.ctx.fillStyle = stackGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            this.ctx.strokeStyle = '#ea80fc';
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Dual vertical chrome guide rods
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillRect(bx + bs * 0.22, by, bs * 0.1, bs);
+            this.ctx.fillRect(bx + bs * 0.68, by, bs * 0.1, bs);
+
+            // Center selector pin hole
+            this.ctx.fillStyle = '#0a000d';
+            this.ctx.beginPath();
+            this.ctx.arc(bx + bs / 2, by + bs / 2, bs * 0.18, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.strokeStyle = '#ffd700';
+            this.ctx.lineWidth = 1.2;
+            this.ctx.stroke();
+
+        } else if (typeId === 'L') {
+            // === POWER SQUAT RACK BOX-TUBE ===
+            // Matte black heavy 3x3 steel column
+            const rackGrad = this.ctx.createLinearGradient(bx, by, bx + bs, by + bs);
+            rackGrad.addColorStop(0, '#455a64');
+            rackGrad.addColorStop(0.3, '#212121');
+            rackGrad.addColorStop(0.8, '#121212');
+            rackGrad.addColorStop(1, '#080808');
+
+            this.ctx.fillStyle = rackGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            // Safety orange industrial border
+            this.ctx.strokeStyle = '#ff6d00';
+            this.ctx.lineWidth = 1.8;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Laser-cut pin holes
+            this.ctx.fillStyle = '#000000';
+            this.ctx.beginPath();
+            this.ctx.arc(bx + bs / 2, by + bs * 0.35, bs * 0.12, 0, Math.PI * 2);
+            this.ctx.arc(bx + bs / 2, by + bs * 0.65, bs * 0.12, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            // Hole chrome rim
+            this.ctx.strokeStyle = '#90a4ae';
+            this.ctx.lineWidth = 1;
+            this.ctx.stroke();
+
+        } else if (typeId === 'J') {
+            // === INCLINE TREADMILL RUNNING DECK ===
+            // Heavy diamond-tread rubber running belt
+            const tmGrad = this.ctx.createLinearGradient(bx, by, bx + bs, by + bs);
+            tmGrad.addColorStop(0, '#1c222c');
+            tmGrad.addColorStop(0.5, '#0e1218');
+            tmGrad.addColorStop(1, '#18202a');
+
+            this.ctx.fillStyle = tmGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            // Electric blue frame border
+            this.ctx.strokeStyle = '#2979ff';
+            this.ctx.lineWidth = 1.8;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Non-slip yellow hazard safety stripe along top/bottom
+            this.ctx.fillStyle = '#ffd600';
+            this.ctx.fillRect(bx + 2, by + 2, bs - 4, 3);
+            this.ctx.fillRect(bx + 2, by + bs - 5, bs - 4, 3);
+
+            // Tread rubber ribs
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            this.ctx.lineWidth = 1.2;
+            for (let i = by + 8; i < by + bs - 8; i += 4) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(bx + 4, i);
+                this.ctx.lineTo(bx + bs - 4, i);
+                this.ctx.stroke();
+            }
+
+        } else if (typeId === 'S') {
+            // === RUBBER HEX DUMBBELL TILE ===
+            // Toxic green rubber hex weight block
+            const dbGrad = this.ctx.createLinearGradient(bx, by, bx + bs, by + bs);
+            dbGrad.addColorStop(0, '#b9f6ca');
+            dbGrad.addColorStop(0.25, '#00e676');
+            dbGrad.addColorStop(0.7, '#008744');
+            dbGrad.addColorStop(1, '#062814');
+
+            this.ctx.fillStyle = dbGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            this.ctx.strokeStyle = '#ffffff';
+            this.ctx.lineWidth = 1.5;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Hexagon facet motif
+            this.ctx.fillStyle = '#0a1a0f';
+            this.ctx.beginPath();
+            const cx = bx + bs / 2;
+            const cy = by + bs / 2;
+            const r = bs * 0.34;
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i;
+                const hx = cx + r * Math.cos(angle);
+                const hy = cy + r * Math.sin(angle);
+                if (i === 0) this.ctx.moveTo(hx, hy);
+                else this.ctx.lineTo(hx, hy);
+            }
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.strokeStyle = '#00e676';
+            this.ctx.lineWidth = 1.2;
+            this.ctx.stroke();
+
+            // Stamped "50"
+            this.ctx.font = `bold ${Math.floor(bs * 0.28)}px sans-serif`;
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText('50', cx, cy);
+
+        } else if (typeId === 'Z') {
+            // === INCLINE WORKOUT BENCH CUSHION ===
+            // Carbon-fiber textured vinyl cushion with red racing seams
+            const benchGrad = this.ctx.createLinearGradient(bx, by, bx + bs, by + bs);
+            benchGrad.addColorStop(0, '#ff8a80');
+            benchGrad.addColorStop(0.25, '#ff1744');
+            benchGrad.addColorStop(0.7, '#a10022');
+            benchGrad.addColorStop(1, '#2c0008');
+
+            this.ctx.fillStyle = benchGrad;
+            this.ctx.fillRect(bx, by, bs, bs);
+
+            // Racing red perimeter border
+            this.ctx.strokeStyle = '#ff1744';
+            this.ctx.lineWidth = 1.8;
+            this.ctx.strokeRect(bx + 1, by + 1, bs - 2, bs - 2);
+
+            // Double red racing stitching (dashed white/red line)
+            this.ctx.strokeStyle = '#ffffff';
+            this.ctx.lineWidth = 1.2;
+            this.ctx.setLineDash([2, 2]);
+            this.ctx.strokeRect(bx + 3, by + 3, bs - 6, bs - 6);
+            this.ctx.setLineDash([]);
+
+            // Center Stepp "S" cushion deboss
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            this.ctx.beginPath();
+            this.ctx.arc(bx + bs / 2, by + bs / 2, bs * 0.18, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Active piece glow highlight
+        if (isActive) {
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(bx, by, bs, bs);
+        }
+
+        this.ctx.restore();
+    }
+
+    drawClearingCell(x, y, s) {
         this.ctx.save();
         this.ctx.fillStyle = '#ffffff';
         this.ctx.shadowColor = '#00e5ff';
-        this.ctx.shadowBlur = 16;
-        this.ctx.fillRect(x, y, s, s);
-        this.ctx.restore();
-    }
-
-    drawEquipmentImage(piece, gridX, gridY, isGhost = false) {
-        const bs = this.blockSize;
-        const type = piece.type;
-        const rot = piece.rot || 0;
-
-        this.ctx.save();
-
-        if (isGhost) {
-            this.ctx.globalAlpha = 0.32;
-            this.ctx.filter = 'drop-shadow(0 0 8px #00e5ff)';
-        }
-
-        if (type === 'I') {
-            const actualRows = piece.shape.length;
-            const actualCols = piece.shape[0].length;
-
-            if (actualCols === 4 && actualRows === 4) {
-                let rowIdx = 1;
-                for (let r = 0; r < 4; r++) {
-                    if (piece.shape[r].includes(1)) {
-                        if (piece.shape[r].filter(v => v === 1).length >= 3) {
-                            rowIdx = r;
-                            break;
-                        }
-                    }
-                }
-                const isH = piece.shape[rowIdx].filter(v => v === 1).length >= 4;
-                if (isH) {
-                    const img = this.images['I_h'];
-                    if (img && img.complete) {
-                        this.ctx.drawImage(img, gridX * bs, (gridY + rowIdx) * bs, 4 * bs, 1 * bs);
-                    }
-                } else {
-                    let colIdx = 1;
-                    for (let c = 0; c < 4; c++) {
-                        if (piece.shape.map(r => r[c]).filter(v => v === 1).length >= 4) {
-                            colIdx = c;
-                            break;
-                        }
-                    }
-                    const img = this.images['I_v'];
-                    if (img && img.complete) {
-                        this.ctx.drawImage(img, (gridX + colIdx) * bs, gridY * bs, 1 * bs, 4 * bs);
-                    }
-                }
-            } else if (actualCols === 4) {
-                const img = this.images['I_h'];
-                if (img && img.complete) {
-                    this.ctx.drawImage(img, gridX * bs, gridY * bs, 4 * bs, bs);
-                }
-            } else {
-                const img = this.images['I_v'];
-                if (img && img.complete) {
-                    this.ctx.drawImage(img, gridX * bs, gridY * bs, bs, 4 * bs);
-                }
-            }
-        } else if (type === 'O') {
-            const img = this.images['O'];
-            if (img && img.complete) {
-                this.ctx.drawImage(img, gridX * bs, gridY * bs, 2 * bs, 2 * bs);
-            }
-        } else {
-            const imgKey = type;
-            const img = this.images[imgKey];
-            if (img && img.complete) {
-                const size = 3 * bs;
-                const cx = (gridX + 1.5) * bs;
-                const cy = (gridY + 1.5) * bs;
-
-                this.ctx.translate(cx, cy);
-                this.ctx.rotate(rot * (Math.PI / 2));
-                this.ctx.drawImage(img, -size / 2, -size / 2, size, size);
-            }
-        }
-
-        this.ctx.restore();
-    }
-
-    drawFallbackEquipmentBlock(x, y, s, typeId) {
-        const pieceInfo = GYM_PIECES[typeId] || GYM_PIECES.I;
-        this.ctx.save();
-
-        const grad = this.ctx.createLinearGradient(x, y, x + s, y + s);
-        grad.addColorStop(0, pieceInfo.accentColor);
-        grad.addColorStop(0.3, pieceInfo.color);
-        grad.addColorStop(1, pieceInfo.darkColor);
-
-        this.ctx.fillStyle = grad;
+        this.ctx.shadowBlur = 18;
         this.ctx.fillRect(x + 1, y + 1, s - 2, s - 2);
-
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(x + 2, y + 2, s - 4, s - 4);
-
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-        this.ctx.beginPath();
-        this.ctx.arc(x + s / 2, y + s / 2, s * 0.18, 0, Math.PI * 2);
-        this.ctx.fill();
-
         this.ctx.restore();
     }
 }
 
-// Preview Renderer using Real Gym Equipment Images
+// Preview Renderer using Full Illustrated Equipment
 class PreviewRenderer {
     constructor(canvas) {
         this.canvas = canvas;
